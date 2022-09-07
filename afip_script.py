@@ -9,16 +9,15 @@ from datetime import date
 import openpyxl
 from openpyxl.styles import Font
 
-def extraer_datos():
+# def extraer_datos():
 # del excel
 
-def login():
+def login(cuit, clave_fiscal):
 # entrar a la pag
 
 def siper():
 # sacar el riesgo
 
 if __name__ == '__main__':
-  cuit = 20243384525 #input('Ingrese el CUIT: ')
-  clave_fiscal = Almamia2021 #input('Ingrese la clave fiscal: ')
-  
+  cuit = input('Ingrese el CUIT: ')
+  clave_fiscal = input('Ingrese la clave fiscal: ')
