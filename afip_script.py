@@ -8,6 +8,7 @@ from selenium import webdriver
 from datetime import date
 import openpyxl
 from openpyxl.styles import Font
+import time
 
 # def extraer_datos():
 # del excel
@@ -19,14 +20,19 @@ def login(browser, cuit, clave_fiscal):
     browser.find_element_by_id('F1:btnSiguiente').click()
     browser.find_element_by_id('F1:password').send_keys(clave_fiscal)
     browser.find_element_by_id('F1:btnIngresar').click()
+    print('Login exitoso.\n')
   except:
-    print('Error en login')
+    print('Error en login.\n')
 
-#def siper():
-# sacar el riesgo
+def siper(browser):
+  try:
+    return browser.find_elements_by_tag_name("p")[2].text
+  except:
+    print('No se encontro elemento siper.\n')
 
 if __name__ == '__main__':
   cuit = input('Ingrese el CUIT: ')
   clave_fiscal = input('Ingrese la clave fiscal: ')
   browser = webdriver.Chrome()
   login(browser, cuit, clave_fiscal)
+  riesgo = siper(browser)
