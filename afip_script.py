@@ -5,6 +5,7 @@ import bs4
 import requests
 import re
 from selenium import webdriver
+from selenium.webdriver.support.ui import Select
 from datetime import date
 import openpyxl
 from openpyxl.styles import Font
@@ -30,9 +31,21 @@ def siper(browser):
   except:
     print('No se encontro elemento siper.\n')
 
+def deuda(browser, cuit, clave_fiscal):
+  try:
+    browser.get('https://ctacte.cloud.afip.gob.ar/contribuyente/externo')
+    browser.find_element_by_id('F1:btnSiguiente').click()
+    browser.find_element_by_id('F1:password').send_keys(clave_fiscal)
+    browser.find_element_by_id('F1:btnIngresar').click()
+    
+
+  except:
+    print('No se encontro elemento deuda.\n')
+
 if __name__ == '__main__':
   cuit = input('Ingrese el CUIT: ')
   clave_fiscal = input('Ingrese la clave fiscal: ')
   browser = webdriver.Chrome()
   login(browser, cuit, clave_fiscal)
-  riesgo = siper(browser)
+  #riesgo = siper(browser)
+  deuda(browser, cuit, clave_fiscal)
