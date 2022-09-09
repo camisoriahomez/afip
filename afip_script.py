@@ -13,17 +13,11 @@ import time
 #para extraer_datos de un excel
 import pandas as pd
 
-# depuracion de errores de Selenium con Chrome para Windows
-options = webdriver.ChromeOptions() 
-options.add_argument("start-maximized")
-# to supress the error messages/logs
-options.add_experimental_option('excludeSwitches', ['enable-logging'])
-
 def extraer_datos():
   # del excel
-  data = pd.read_excel (r'C:\Users\Administrator\Desktop\AFIP\AFIP.xlsx')
+  data = pd.read_excel (r'C:\Users\Administrator\Desktop\AFIP\afip\AFIP.xlsx')
   df = pd.DataFrame(data, columns= ['CUIL', 'Clave']) # es necesario que las palabras clave sean exactas
-  print (df)
+  return df
 
 def login(browser, cuit, clave_fiscal):
   try:
@@ -42,9 +36,23 @@ def siper(browser):
   except:
     print('No se encontro elemento siper.\n')
 
+def mis_servicios():
+  #despues del login la pagina quedara en web definida debajo y por default se encontrara en la pestaña Mi agenda
+  web= 'https://portalcf.cloud.afip.gob.ar/portal/app/'
+  browser.find_element_by_title('Mis Servicios').click()  
+
+def e_servicios():
+  browser.find_element_by_title('srt_eservicios').click()
+  #OJO!! abre una nueva pestaña no se si eso traera problemas con selenium
+  while browser.find_element_by_class('label label-danger badge-mensajes').text != 0:
+    browser.find_element_by_class('m-t-0').click()
+    #implementacion del guardado de los mensajes
+
+
 if __name__ == '__main__':
   cuit = input('Ingrese el CUIT: ')
   clave_fiscal = input('Ingrese la clave fiscal: ')
-  browser = webdriver.Chrome(options=options)
+  browser = webdriver.Chrome()
   login(browser, cuit, clave_fiscal)
   riesgo = siper(browser)
+  mis_servicios()
