@@ -44,7 +44,7 @@ def mis_servicios():
 def e_servicios():
   browser.find_element_by_title('srt_eservicios').click()
   #OJO!! abre una nueva pestaña no se si eso traera problemas con selenium
-  while browser.find_element_by_class('label label-danger badge-mensajes').text != 0:
+  if browser.find_element_by_class('label label-danger badge-mensajes').text != 0:
     browser.find_element_by_class('m-t-0').click()
     #implementacion del guardado de los mensajes
 
