@@ -10,14 +10,15 @@ import openpyxl
 from openpyxl.styles import Font
 import time
 
-#para extraer_datos de un excel
-import pandas as pd
+def extraer_cuil(i, sheet_obj,path):
+  #del excel
+  cell_obj = sheet_obj.cell(row = i+1, column = 2)
+  return cell_obj.value
 
-def extraer_datos():
+def extraer_password(i, sheet_obj, path):
   # del excel
-  data = pd.read_excel (r'C:\Users\Administrator\Desktop\AFIP\afip\AFIP.xlsx')
-  df = pd.DataFrame(data, columns= ['CUIL', 'Clave']) # es necesario que las palabras clave sean exactas
-  return df
+  cell_obj = sheet_obj.cell(row = i+1, column = 3)
+  return cell_obj.value
 
 def login(browser, cuit, clave_fiscal):
   try:
@@ -50,9 +51,17 @@ def e_servicios():
 
 
 if __name__ == '__main__':
-  cuit = input('Ingrese el CUIT: ')
-  clave_fiscal = input('Ingrese la clave fiscal: ')
-  browser = webdriver.Chrome()
-  login(browser, cuit, clave_fiscal)
-  riesgo = siper(browser)
-  mis_servicios()
+  #extraccion de datos del excel
+  path = r"C:\Users\Administrator\Desktop\AFIP\afip\AFIP.xlsx"
+  wb_obj = openpyxl.load_workbook(path)  
+  sheet_obj = wb_obj.active
+  max_row = sheet_obj.max_row
+  #extrae cada usuario del excel
+  for i in range(1, max_row + 1):
+    cuit = extraer_cuil(i, sheet_obj, path)
+    clave_fiscal = extraer_password(i, sheet_obj, path)
+    browser = webdriver.Chrome()
+    login(browser, cuit, clave_fiscal)
+    #Solo realizar si el login fue exitoso
+    riesgo = siper(browser)
+    mis_servicios()
