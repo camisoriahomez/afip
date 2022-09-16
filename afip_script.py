@@ -60,10 +60,9 @@ def deuda(browser, cuit, clave_fiscal):
   except:
     print("No se encontro elemento deuda.\n")
 
-def e_servicios(browser):
+def e_servicios_juridicos(browser):
   try:
     browser.get('https://eservicios.srt.gob.ar/home/Default.aspx')
-    re_login(browser, clave_fiscal)
     return browser.find_element(By.CSS_SELECTOR, 'span.label.label-danger.badge-mensajes').text
   except:
     print("No se encontraron notificaciones juridicas. \n")
@@ -72,7 +71,7 @@ def e_servicios_personal(browser):
   try:
     browser.get('https://eservicios.srt.gob.ar/home/Default.aspx')
     re_login(browser, clave_fiscal)
-    return browser.find_element(By.XPATH, '//*[@id="formPrincipal"]/div[3]/section/div/aside/nav/ul/div[2]/div[1]/a[2]/span').text
+    return browser.find_element(By.CSS_SELECTOR, 'span.badge.badge-light.text-right.cuit-tooltip').text
   except:
     print("No se encontraron notificaciones personales. \n")    
 
@@ -103,7 +102,7 @@ if __name__ == '__main__':
     notificaciones_personales = e_servicios_personal(browser)
     c3 = sheet_obj.cell(row = i, column = 6)
     c3.value = notificaciones_personales
-    notificaciones_juridicas = e_servicios(browser)
+    notificaciones_juridicas = e_servicios_juridicos(browser)
     c4 = sheet_obj.cell(row = i, column = 7)
     c4.value = notificaciones_juridicas
     wb_obj.save(path)
