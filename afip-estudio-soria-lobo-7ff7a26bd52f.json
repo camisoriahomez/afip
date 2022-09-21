@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "afip-estudio-soria-lobo",
+  "private_key_id": "7ff7a26bd52fc705b2857d3d1222271599c50fcd",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC+ZPM/IqagDtwE\nj5o5d8XvQA8H83QjCpFLNPbtuERQ4xgAtjzst/CbWzpy9U6FuzIf7sMIe9uHBl8W\nd2iTS58sz6CrT6rZaRSpz+wkN1lf9Gk9/J6qVqtsyYERFgd4H3NQa8i/ot0rZtjN\n9AeTS0xnaowue7oaLHVkv6YK13RrbOWjfUoLUE7OtFF0cte7sR8Cqaft3/S3XQcy\nQm594PqMqwyyWQswU4GNo2Mte0R0+/iYjHz7PBO8e6/+s+9jh3qH/YYt8eYoDabJ\n6gQnlFrxcY49SThmDTNYDsVKq4Ny6y+2pJJHaSZksxkIL1+yvJH8dN6MBSneEndr\np2kl1SXJAgMBAAECggEALC1TTZ52KCRag8poQBZc/IcSFce09l6A2QD4nK8JVvVi\nf+PJHioN75ZK6RqnNht55XPqmCDZDqr5TEa3opnE3MpuXuGU5G5f54kBo2OeXsfg\n1Yu0qxSCITNeOb8xS3uMr6faxDB/fg8Wli8dxN0PZN2RmkWGKIWRVaesWM6mSjhr\nVNeTdrQxmgNEfN61swF1d68b2rM+5hPoK4+IXGiMg9QwcVXHCuSP9bBypmaMtWwT\nwi6ZDydVcAtRKgGeO8bdnpILJR11W3KTUZWuf7IAugU6Kk8XyxscxMUjebaVZEsr\n9EEE4ceZf1m+StDKwuFFGDPr5zYJHDE1QPgDMwolwwKBgQDhQTdnUj1pHbDirPl4\n9mo5uRgCXp3D9YCY3ia/VvWZTqeDgfUX03sn1EcOV8yBPT/pZsRx6h4imxd846uX\nGGq6MGzx+pW0r/0qAePyCubWYXKECncmMOv09KIisoa+mY78dyV7gEfN2IZotK2W\nH9FtRdqdQ1LfHkMPzuzV/PgndwKBgQDYYabTBQnm+dFzK7j/HpVdFQjJZVrToSmb\nPp+WRWI8TvreqNCyoS0d4VHjVhiRb/eAF+iZDoA9SQIQwccQQjR5NQzq+12Q1PgO\nNPzV3Km9XPH242XHY85kkEHcpugnMTZIp6Vi12J5uLleBPQyNVdXfwnm/wLXc5oD\nhG56baLsvwKBgQCIpbSDhFtmwjFFQaPRosLMI6ISBe31K6CIm/OrjYhOKW3rlFHn\n005Z2igE5nRUTqDP6ZzwchM38RftlnvInHJaYvgkT1y0ETMmYaEzezOQB+udeG/R\nhkoN/r3BCMY/KA6az3i4lBh7IohfSoQnl0PH42F8l5PVcJlEJMZ+BglQfwKBgFMk\ngpOG1h04VLCqVjVBLSdNE8k+9r1mqbQLRgrZsjt2JZM0zqw0nj9i+rIdvOb1XOaN\nSUS2e7QQv4hszO6EYeFI7yPDXlpuWroqxhPu7BHlCtxQ2CTbRs0BWS1NvNqCYFde\ng4ANPruCrUdhI+u+70ahe86UoiTjOISteD32rqnFAoGBANIdKVwUM7artBeaeHiP\n1Wknd1ys9AMgYtdpBWcwCgJOzMUi+11txFyODnp34n+ycN3PHLW1rZ8/dTYbxLVS\n444jJ4JgBroN8F84SuUBmTz093LKniMCM7kE5h2gZuKhaPAbaRkkZ1an+inlxKbF\n6+NRGsriY0qEcze6VzT5s6Vp\n-----END PRIVATE KEY-----\n",
+  "client_email": "script-afip@afip-estudio-soria-lobo.iam.gserviceaccount.com",
+  "client_id": "114270059029821506330",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/script-afip%40afip-estudio-soria-lobo.iam.gserviceaccount.com"
+}
