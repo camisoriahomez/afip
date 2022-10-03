@@ -137,11 +137,15 @@ if __name__ == '__main__':
     c1.value = riesgo
     # deuda
     deuda_dic = deuda(browser, cuit, clave_fiscal)
-    deuda_list = list(deuda_dic.values())
-    deuda_list = flattenlist(deuda_list)
-    for j in range(len(deuda_list)):
-      c1 = sheet_obj.cell(row = i, column = 7+j)
-      c1.value = deuda_list[j]
+    print(type(deuda_dic))
+    if type(deuda_dic) == dict:
+      deuda_list = list(deuda_dic.values())
+      deuda_list = flattenlist(deuda_list)
+      for j in range(len(deuda_list)):
+        c1 = sheet_obj.cell(row = i, column = 7+j)
+        c1.value = deuda_list[j]
+    else: 
+      print("Error al encontrar elemento deuda")    
     # e-Servicios SRT
     notificaciones_personales = e_servicios_personal(browser)
     c1 = sheet_obj.cell(row = i, column = 5)
