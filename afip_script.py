@@ -137,7 +137,6 @@ if __name__ == '__main__':
     c1.value = riesgo
     # deuda
     deuda_dic = deuda(browser, cuit, clave_fiscal)
-    print(type(deuda_dic))
     if type(deuda_dic) == dict:
       deuda_list = list(deuda_dic.values())
       deuda_list = flattenlist(deuda_list)
@@ -154,3 +153,4 @@ if __name__ == '__main__':
     c1 = sheet_obj.cell(row = i, column = 6)
     c1.value = notificaciones_juridicas
     wb_obj.save(path)
+  browser.close()  
