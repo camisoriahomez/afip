@@ -1,32 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import bs4
-import requests
-import re
-import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import date
-import openpyxl
-from openpyxl.styles import Font
+import gspread
 import time
 
 #Depurar errores de selenium en windows
 options = webdriver.ChromeOptions() 
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
-def extraer_cuil(i, sheet_obj,path):
-  #del excel
-  cell_obj = sheet_obj.cell(row = i, column = 2)
+def extraer_cuil(i, worksheet):
+  cell_obj = worksheet.cell(i, 2)
   return cell_obj.value
 
-def extraer_clave(i, sheet_obj, path):
-  # del excel
-  cell_obj = sheet_obj.cell(row = i, column = 3)
+def extraer_clave(i, worksheet):
+  cell_obj = worksheet.cell(i, 3)
   return cell_obj.value
 
 def login(browser, cuit, clave_fiscal):
@@ -119,38 +112,36 @@ def flattenlist(l):
   return flat_list          
 
 if __name__ == '__main__':
-  #extraccion de datos del excel
-  path = r"C:\Users\Administrator\Desktop\AFIP\afip\AFIP.xlsx"
-  wb_obj = openpyxl.load_workbook(path)  
-  sheet_obj = wb_obj.active
-  max_row = sheet_obj.max_row
+  #extraccion de datos de Google Sheets
+  credentials = r'C:/Users/Administrator/Desktop/AFIP/afip/credentials.json'
+  authorized_user = r'C:/Users/Administrator/Desktop/AFIP/afip/auth_user.json'
+  gc= gspread.oauth(credentials, authorized_user)
+  sh = gc.open("AFIP")
+  worksheet = sh.sheet1
+  max_row = len(worksheet.get_all_values()) +1
+  browser = webdriver.Chrome(options=options)
   #extrae cada usuario del excel
-  for i in range(2, max_row - 1):
-    cuit = extraer_cuil(i, sheet_obj, path)
-    clave_fiscal = extraer_clave(i, sheet_obj, path)
+  for i in range(2, max_row):
+    cuit = extraer_cuil(i, worksheet)
+    clave_fiscal = extraer_clave(i, worksheet)
     browser = webdriver.Chrome(options=options)
     login(browser, cuit, clave_fiscal)
     #A partir de aca solo realizar si el login fue exitoso
-    riesgo = siper(browser)
+    riesgo = str(siper(browser))
     #Escribir siper en excel
-    c1 = sheet_obj.cell(row = i, column = 4)
-    c1.value = riesgo
+    worksheet.update_cell(i, 4, riesgo)
     # deuda
     deuda_dic = deuda(browser, cuit, clave_fiscal)
     if type(deuda_dic) == dict:
       deuda_list = list(deuda_dic.values())
       deuda_list = flattenlist(deuda_list)
       for j in range(len(deuda_list)):
-        c1 = sheet_obj.cell(row = i, column = 7+j)
-        c1.value = deuda_list[j]
+        worksheet.update_cell(i, 7+j, deuda_list[j])
     else: 
       print("Error al encontrar elemento deuda")    
     # e-Servicios SRT
     notificaciones_personales = e_servicios_personal(browser)
-    c1 = sheet_obj.cell(row = i, column = 5)
-    c1.value = notificaciones_personales
+    worksheet.update_cell(i, 5, notificaciones_personales)
     notificaciones_juridicas = e_servicios_juridicos(browser)
-    c1 = sheet_obj.cell(row = i, column = 6)
-    c1.value = notificaciones_juridicas
-    wb_obj.save(path)
+    worksheet.update_cell(i, 6, notificaciones_juridicas)
   browser.close()  
