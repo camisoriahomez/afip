@@ -59,17 +59,41 @@ def deuda(browser, cuit, clave_fiscal):
     # login de nuevo
     browser.get('https://ctacte.cloud.afip.gob.ar/contribuyente/externo')
     re_login(browser, clave_fiscal)
-    # desplegable 
-    cuits = Select(browser.find_element(By.NAME,'$PropertySelection'))
-    total = {}
-    for i, cuit in enumerate(cuits.options):
+    # desplegable
+    try:
+      cuits = Select(browser.find_element(By.NAME,'$PropertySelection'))    
+      total = {}
+      for i, cuit in enumerate(cuits.options):
+        cant_imp, saldo = 0, 0
+        num_cuit = cuit.text
+        print(f'Leyendo info de CUIT: {num_cuit} \n')
+        total[num_cuit] = []
+        time.sleep(5)
+        cuits.select_by_index(i)
+        time.sleep(5)
+        conceptos = browser.find_elements(By.CSS_SELECTOR, 'tr[class="group"]')
+        print(f'Conceptos encontrados: {len(conceptos)} \n')
+        for concepto in conceptos:
+          elemento_cant_imp = concepto.find_element(By.CSS_SELECTOR, 'span[class="cant-impuesto"]').text
+          cant_imp += int(elemento_cant_imp[1:-1])
+          elemento_saldo = concepto.find_element(By.CSS_SELECTOR, 'td[class="subtotales sb_saldo"]').text
+          saldo += str_a_saldo(elemento_saldo)
+          elemento_int_r = concepto.find_element(By.CSS_SELECTOR, 'td[class="subtotales sb_int_res"]').text
+          saldo += str_a_saldo(elemento_int_r)
+          elemento_int_p = concepto.find_element(By.CSS_SELECTOR, 'td[class="subtotales sb_int_pun"]').text
+          saldo += str_a_saldo(elemento_int_p)
+        print(f'Cantidad de deuda total: {saldo}')   
+        print(f'Cantidad de obligaciones encontradas: {cant_imp} \n')
+        total.update({num_cuit: [cant_imp, saldo]})
+    except:
+      cuit = browser.find_element(By.CLASS_NAME, 'cuit')
+      total = {}
       cant_imp, saldo = 0, 0
       num_cuit = cuit.text
-      print(f'Leyendo info de CUIT: {num_cuit}')
+      print(f'Leyendo info de CUIT: {num_cuit} \n')
       total[num_cuit] = []
-      time.sleep(4)
-      cuits.select_by_index(i)
-      time.sleep(4)
+      time.sleep(5)
+      time.sleep(5)
       conceptos = browser.find_elements(By.CSS_SELECTOR, 'tr[class="group"]')
       print(f'Conceptos encontrados: {len(conceptos)}')
       for concepto in conceptos:
@@ -81,9 +105,8 @@ def deuda(browser, cuit, clave_fiscal):
         saldo += str_a_saldo(elemento_int_r)
         elemento_int_p = concepto.find_element(By.CSS_SELECTOR, 'td[class="subtotales sb_int_pun"]').text
         saldo += str_a_saldo(elemento_int_p)
-      print(f'Cantidad de deuda: {saldo}')   
-      print(f'Cantidad de obligaciones encontradas: {cant_imp}')
-       
+      print(f'Cantidad de deuda total: {saldo} \n')   
+      print(f'Cantidad de obligaciones encontradas: {cant_imp} \n')
       total.update({num_cuit: [cant_imp, saldo]})
     return total
   except:
@@ -113,8 +136,8 @@ def flattenlist(l):
 
 if __name__ == '__main__':
   #extraccion de datos de Google Sheets
-  credentials = r'C:/Users/Administrator/Desktop/AFIP/afip/credentials.json'
-  authorized_user = r'C:/Users/Administrator/Desktop/AFIP/afip/auth_user.json'
+  credentials = '/credentials.json'
+  authorized_user = '/auth_user.json'
   gc= gspread.oauth(credentials, authorized_user)
   sh = gc.open("AFIP")
   worksheet = sh.sheet1
@@ -138,7 +161,7 @@ if __name__ == '__main__':
       for j in range(len(deuda_list)):
         worksheet.update_cell(i, 7+j, deuda_list[j])
     else: 
-      print("Error al encontrar elemento deuda")    
+      print("Error al encontrar elemento deuda. \n")    
     # e-Servicios SRT
     notificaciones_personales = e_servicios_personal(browser)
     worksheet.update_cell(i, 5, notificaciones_personales)
