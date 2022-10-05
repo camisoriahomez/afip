@@ -145,6 +145,7 @@ if __name__ == '__main__':
   browser = webdriver.Chrome(options=options)
   #extrae cada usuario del excel
   for i in range(2, max_row):
+    print(f"Trabajando con: {worksheet.cell(i, 1).value}") 
     cuit = extraer_cuil(i, worksheet)
     clave_fiscal = extraer_clave(i, worksheet)
     browser = webdriver.Chrome(options=options)
