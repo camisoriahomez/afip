@@ -205,7 +205,6 @@ def afip_monotributo(gc):
   sh = gc.open_by_key('1swJFxi9ZOKf1p7F_Ni8ShFvZovcRZJEN6pc-U40qFRM')
   worksheet = sh.get_worksheet(1)
   max_row = len(worksheet.get_all_values()) +1
-  browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
   #extrae cada usuario del excel
   for i in range(2, max_row):
     print(f"Trabajando con: {worksheet.cell(i, 1).value}")
@@ -228,7 +227,6 @@ def afip_monotributo(gc):
         worksheet.update_cell(i, 5+j, deuda_list[j])
     else: 
       print("Error al encontrar elemento deuda. \n")  
-  browser.close()
 
 def rentas(gc):
   try:
