@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from types import NoneType
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.common.keys import Keys
 from datetime import date
+from webdriver_manager.chrome import ChromeDriverManager
 import gspread
 import time
 
@@ -14,13 +18,10 @@ import time
 options = webdriver.ChromeOptions() 
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
-def extraer_cuil(i, worksheet):
-  cell_obj = worksheet.cell(i, 2)
-  return cell_obj.value
-
-def extraer_clave(i, worksheet):
-  cell_obj = worksheet.cell(i, 3)
-  return cell_obj.value
+def extraer_datos(i, worksheet):
+  cell_cuil = worksheet.cell(i, 2)
+  cell_clave = worksheet.cell(i, 3)
+  return cell_cuil.value, cell_clave.value
 
 def login(browser, cuit, clave_fiscal):
   try:
@@ -52,7 +53,6 @@ def str_a_saldo(string):
     if s.isnumeric(): new_string += s
     if s == ',': new_string += '.'
   return float(new_string)
-
 
 def deuda(browser, cuit, clave_fiscal):
   try:
@@ -86,6 +86,7 @@ def deuda(browser, cuit, clave_fiscal):
         print(f'Cantidad de obligaciones encontradas: {cant_imp} \n')
         total.update({num_cuit: [cant_imp, saldo]})
     except:
+      print('Sin persona juridica a tratar. \n')
       cuit = browser.find_element(By.CLASS_NAME, 'cuit')
       total = {}
       cant_imp, saldo = 0, 0
@@ -112,47 +113,80 @@ def deuda(browser, cuit, clave_fiscal):
   except:
     print('No se encontro elemento deuda.\n')    
 
-def e_servicios_juridicos(browser):
-  try:
-    browser.get('https://eservicios.srt.gob.ar/home/Default.aspx')
-    return browser.find_element(By.CSS_SELECTOR, 'span.label.label-danger.badge-mensajes').text
-  except:
-    print("No se encontraron notificaciones juridicas. \n")
-
-def e_servicios_personal(browser):
+def e_servicios(browser, clave_fiscal):
   try:
     browser.get('https://eservicios.srt.gob.ar/home/Default.aspx')
     re_login(browser, clave_fiscal)
-    return browser.find_element(By.CSS_SELECTOR, 'span.badge.badge-light.text-right.cuit-tooltip').text
+    personal = browser.find_element(By.CSS_SELECTOR, 'span.badge.badge-light.text-right.cuit-tooltip').text
+    juridico = browser.find_element(By.CSS_SELECTOR, 'span.label.label-danger.badge-mensajes').text
+    return personal, juridico
   except:
-    print("No se encontraron notificaciones personales. \n")
+    print("Error en e-servicios \n")
+    return None, None
 
 def flattenlist(l):
   flat_list = []
   for sublist in l:
     for item in sublist:
         flat_list.append(item)
-  return flat_list          
+  return flat_list
 
-if __name__ == '__main__':
-  #extraccion de datos de Google Sheets
-  credentials = '/credentials.json'
-  authorized_user = '/auth_user.json'
-  gc= gspread.oauth(credentials, authorized_user)
-  sh = gc.open("AFIP")
-  worksheet = sh.sheet1
+def retenciones(browser):
+  try:
+    #Ir a Mis retenciones
+    browser.find_element(By.XPATH, '//*[@id="root"]/div/main/section[1]/div/ul/li[3]/a/span').click()
+    time.sleep(3)
+    browser.find_element(By.XPATH, '//*[@id="root"]/div/main/div[2]/section[2]/div/div/div[20]/div/div/div/div[2]/h4').click()
+    time.sleep(3)
+    browser.switch_to.window(browser.window_handles[1])
+    cuits = Select(browser.find_element(By.NAME,'cuitRetenido'))
+    cuits.select_by_index(1)
+    time.sleep(5)
+    keys= ['217', '787', '939']
+    SICORE, GCIAS, PAIS = 0, 0, 0 
+    for key in keys:
+      try:
+        browser.find_element(By.NAME, 'impuesto').clear()
+        browser.find_element(By.NAME, 'impuesto').send_keys(key)
+        browser.find_element(By.CLASS_NAME, 'inputbutton').click()
+        try:
+          browser.switch_to.alert.accept()
+        except:
+          pass  
+        time.sleep(3)
+        valor = browser.find_element(By.XPATH, '//*[@id="totalgeneral"]/tbody/tr[2]/td[2]').text
+        valor = valor.replace('.', '')
+        valor = valor.replace(',', '.')
+        if key == '217':
+          SICORE = valor
+        elif key == '787':
+          GCIAS = valor
+        elif key == '939':
+          PAIS = valor
+        browser.back()
+      except:
+        pass  
+    browser.close()    
+    browser.switch_to.window(browser.window_handles[0])    
+    return SICORE, GCIAS, PAIS
+  except:
+    print("Error en retenciones. \n")
+    return None, None, None       
+        
+def afip_juridicos(gc):
+  #Abre el excel de AFIP
+  sh = gc.open_by_key('1swJFxi9ZOKf1p7F_Ni8ShFvZovcRZJEN6pc-U40qFRM')
+  worksheet = sh.get_worksheet(0)
   max_row = len(worksheet.get_all_values()) +1
-  browser = webdriver.Chrome(options=options)
+  browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
   #extrae cada usuario del excel
   for i in range(2, max_row):
     print(f"Trabajando con: {worksheet.cell(i, 1).value}") 
-    cuit = extraer_cuil(i, worksheet)
-    clave_fiscal = extraer_clave(i, worksheet)
-    browser = webdriver.Chrome(options=options)
+    cuit, clave_fiscal = extraer_datos(i, worksheet)
+    browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
     login(browser, cuit, clave_fiscal)
     #A partir de aca solo realizar si el login fue exitoso
     riesgo = str(siper(browser))
-    #Escribir siper en excel
     worksheet.update_cell(i, 4, riesgo)
     # deuda
     deuda_dic = deuda(browser, cuit, clave_fiscal)
@@ -164,8 +198,72 @@ if __name__ == '__main__':
     else: 
       print("Error al encontrar elemento deuda. \n")    
     # e-Servicios SRT
-    notificaciones_personales = e_servicios_personal(browser)
+    notificaciones_personales, notificaciones_juridicas = e_servicios(browser, clave_fiscal)
     worksheet.update_cell(i, 5, notificaciones_personales)
-    notificaciones_juridicas = e_servicios_juridicos(browser)
     worksheet.update_cell(i, 6, notificaciones_juridicas)
-  browser.close()  
+  browser.close()     
+
+def afip_monotributo(gc):
+  sh = gc.open_by_key('1swJFxi9ZOKf1p7F_Ni8ShFvZovcRZJEN6pc-U40qFRM')
+  worksheet = sh.get_worksheet(1)
+  max_row = len(worksheet.get_all_values()) +1
+  browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+  #extrae cada usuario del excel
+  for i in range(2, max_row):
+    print(f"Trabajando con: {worksheet.cell(i, 1).value}")
+    cuit, clave_fiscal = extraer_datos(i, worksheet)
+    browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+    login(browser, cuit, clave_fiscal)
+    riesgo = str(siper(browser))
+    worksheet.update_cell(i, 4, riesgo)
+    #retenciones
+    sicore, gcias, pais =retenciones(browser)
+    worksheet.update_cell(i, 7, sicore)
+    worksheet.update_cell(i, 8, gcias)
+    worksheet.update_cell(i, 9, pais)
+    # deuda
+    deuda_dic = deuda(browser, cuit, clave_fiscal)
+    if type(deuda_dic) == dict:
+      deuda_list = list(deuda_dic.values())
+      deuda_list = flattenlist(deuda_list)
+      for j in range(len(deuda_list)):
+        worksheet.update_cell(i, 5+j, deuda_list[j])
+    else: 
+      print("Error al encontrar elemento deuda. \n")  
+  browser.close()
+
+def rentas(gc):
+  try:
+    sh = gc.open_by_key('175_tJhY6wlb8yIYjg6Ihc3Fxz6aYtT1ysv6PUU-oFxw')
+    worksheet = sh.get_worksheet(0)
+    max_row = len(worksheet.get_all_values()) +1
+    for i in range(2, max_row):
+      print(f"Trabajando con: {worksheet.cell(i, 1).value}") 
+      cuit, clave = extraer_datos(i, worksheet)
+      browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+      #login a rentas
+      browser.get('https://www.dgrsalta.gov.ar/rentassalta/login.jsp')
+      browser.find_element(By.XPATH, '//*[@id="usuario"]').send_keys(cuit)
+      browser.find_element(By.XPATH,'//*[@id="password"]').send_keys(clave)
+      browser.find_element(By.XPATH, '//*[@id="enviaLogin"]/span').click()
+      browser.get('https://www.dgrsalta.gov.ar/rentassalta/menuRiesgoFiscal.do')
+      time.sleep(5)
+      browser.find_element(By.XPATH, '//*[@id="fancybox-close"]').click()
+      time.sleep(3)
+      browser.find_element(By.XPATH, '//*[@id="Riesgo_Fiscal"]').click()
+      time.sleep(3)
+      browser.switch_to.alert.accept()
+      time.sleep(5)
+      riesgo_fiscal = browser.find_element(By.XPATH, '//*[@id="contenido"]/div/table/tbody/tr[2]/td').text
+      print(riesgo_fiscal)
+      riesgo_fiscal = riesgo_fiscal.replace('Su nivel de Riesgo Fiscal actualmente es : ', '')
+      worksheet.update_cell(i, 4, riesgo_fiscal)
+    browser.close()  
+  except:
+    print("Error de rentas. \n")
+
+if __name__ == '__main__':
+  gc= gspread.oauth()
+  afip_juridicos(gc)
+  afip_monotributo(gc)
+  rentas(gc)
