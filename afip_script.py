@@ -134,13 +134,13 @@ def retenciones(browser):
     #Ir a Mis retenciones
     browser.find_element(By.XPATH, '//*[@id="root"]/div/main/section[1]/div/ul/li[3]/a/span').click()
     time.sleep(3)
-    browser.find_element(By.XPATH, '//*[@id="root"]/div/main/div[2]/section[2]/div/div/div[20]/div/div/div/div[2]/h4').click()
+    browser.find_element(By.XPATH, '//*[@title="mis_retenciones"]').click()
     time.sleep(3)
     browser.switch_to.window(browser.window_handles[1])
     cuits = Select(browser.find_element(By.NAME,'cuitRetenido'))
     cuits.select_by_index(1)
-    time.sleep(5)
-    keys= ['217', '787', '939']
+    time.sleep(3)
+    keys= ['217', '939', '787']
     SICORE, GCIAS, PAIS = 0, 0, 0 
     for key in keys:
       try:
