@@ -261,7 +261,7 @@ def rentas(gc):
     print("Error de rentas. \n")
 
 if __name__ == '__main__':
-  gc= gspread.oauth()
+  gc = gspread.service_account()
   afip_juridicos(gc)
   afip_monotributo(gc)
   rentas(gc)
