@@ -176,7 +176,6 @@ def afip_juridicos(gc):
   sh = gc.open_by_key('1swJFxi9ZOKf1p7F_Ni8ShFvZovcRZJEN6pc-U40qFRM')
   worksheet = sh.get_worksheet(0)
   max_row = len(worksheet.get_all_values()) +1
-  browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
   #extrae cada usuario del excel
   for i in range(2, max_row):
     print(f"Trabajando con: {worksheet.cell(i, 1).value}") 
@@ -198,8 +197,7 @@ def afip_juridicos(gc):
     # e-Servicios SRT
     notificaciones_personales, notificaciones_juridicas = e_servicios(browser, clave_fiscal)
     worksheet.update_cell(i, 5, notificaciones_personales)
-    worksheet.update_cell(i, 6, notificaciones_juridicas)
-  browser.close()     
+    worksheet.update_cell(i, 6, notificaciones_juridicas)   
 
 def afip_monotributo(gc):
   sh = gc.open_by_key('1swJFxi9ZOKf1p7F_Ni8ShFvZovcRZJEN6pc-U40qFRM')
@@ -238,22 +236,25 @@ def rentas(gc):
       cuit, clave = extraer_datos(i, worksheet)
       browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
       #login a rentas
-      browser.get('https://www.dgrsalta.gov.ar/rentassalta/login.jsp')
-      browser.find_element(By.XPATH, '//*[@id="usuario"]').send_keys(cuit)
-      browser.find_element(By.XPATH,'//*[@id="password"]').send_keys(clave)
-      browser.find_element(By.XPATH, '//*[@id="enviaLogin"]/span').click()
-      browser.get('https://www.dgrsalta.gov.ar/rentassalta/menuRiesgoFiscal.do')
-      time.sleep(5)
-      browser.find_element(By.XPATH, '//*[@id="fancybox-close"]').click()
-      time.sleep(3)
-      browser.find_element(By.XPATH, '//*[@id="Riesgo_Fiscal"]').click()
-      time.sleep(3)
-      browser.switch_to.alert.accept()
-      time.sleep(5)
-      riesgo_fiscal = browser.find_element(By.XPATH, '//*[@id="contenido"]/div/table/tbody/tr[2]/td').text
-      print(riesgo_fiscal)
-      riesgo_fiscal = riesgo_fiscal.replace('Su nivel de Riesgo Fiscal actualmente es : ', '')
-      worksheet.update_cell(i, 4, riesgo_fiscal)
+      try:
+        browser.get('https://www.dgrsalta.gov.ar/rentassalta/login.jsp')
+        browser.find_element(By.XPATH, '//*[@id="usuario"]').send_keys(cuit)
+        browser.find_element(By.XPATH,'//*[@id="password"]').send_keys(clave)
+        browser.find_element(By.XPATH, '//*[@id="enviaLogin"]/span').click()
+        browser.get('https://www.dgrsalta.gov.ar/rentassalta/menuRiesgoFiscal.do')
+        time.sleep(5)
+        browser.find_element(By.XPATH, '//*[@id="fancybox-close"]').click()
+        time.sleep(3)
+        browser.find_element(By.XPATH, '//*[@id="Riesgo_Fiscal"]').click()
+        time.sleep(3)
+        browser.switch_to.alert.accept()
+        time.sleep(5)
+        riesgo_fiscal = browser.find_element(By.XPATH, '//*[@id="contenido"]/div/table/tbody/tr[2]/td').text
+        print(riesgo_fiscal)
+        riesgo_fiscal = riesgo_fiscal.replace('Su nivel de Riesgo Fiscal actualmente es : ', '')
+        worksheet.update_cell(i, 4, riesgo_fiscal)
+      except:
+        print("Error de contraseña")  
     browser.close()  
   except:
     print("Error de rentas. \n")
